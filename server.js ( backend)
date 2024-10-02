@@ -1,0 +1,28 @@
+const express = require('express');
+const multer = require('multer');
+const bodyParser = require('body-parser');
+const { generateContent } = require('./aiModel');  // Placeholder for AI generation logic
+
+const app = express();
+const port = 5000;
+
+app.use(bodyParser.json());
+app.use(express.static('public'));
+
+const upload = multer({ dest: 'uploads/' });
+
+app.post('/generate', upload.single('productImage'), async (req, res) => {
+  const { offerDetails, colorPalette, theme } = req.body;
+  const imagePath = req.file.path;
+  
+  try {
+    const generatedResult = await generateContent(imagePath, offerDetails, colorPalette, theme);
+    res.json({ resultUrl: generatedResult });
+  } catch (error) {
+    res.status(500).json({ error: 'Error generating content' });
+  }
+});
+
+app.listen(port, () => {
+  console.log(Backend listening at http://localhost:${port});
+});
